@@ -21,7 +21,7 @@ resource "aws_subnet" "public" {
 resource "aws_subnet" "private" {
   count      = 2
   vpc_id     = "${aws_vpc.wordpressVpc.id}"
-  cidr_block = "${element(var.privateSubnetList, count.index)}"
+  cidr_block = "${element(var.private_subnet_cidr_list, count.index)}"
 
   tags {
     Tier = "Private"
