@@ -1,12 +1,3 @@
-# Extract the ids of the private subnets created in network.tf
-data "aws_subnet_ids" "wordpressPrivateSubnets" {
-  vpc_id = "${aws_vpc.wordpressVpc.id}"
-
-  tags {
-    Tier = "Private"
-  }
-}
-
 # Create managed mysql server in RDS
 resource "aws_db_instance" "wordpress" {
   allocated_storage      = 10
@@ -15,17 +6,19 @@ resource "aws_db_instance" "wordpress" {
   engine_version         = "5.7"
   instance_class         = "db.t2.micro"
   username               = "testExample"
-  password               = "${var.mysql_root_password}"
+  password               = "${var.rds_root_password}"
+  port                   = "3306"
+  name                   = "wp_db"
   parameter_group_name   = "default.mysql5.7"
   maintenance_window     = "Sun:00:00-Sun:01:00"
-  publicly_accessible    = false
+  publicly_accessible    = true
   vpc_security_group_ids = ["${aws_security_group.wordpressRdsSg.id}"]
   db_subnet_group_name   = "${aws_db_subnet_group.wordpressDb.id}"
 }
 
 # Database subnet group
 resource "aws_db_subnet_group" "wordpressDb" {
-  subnet_ids = ["${data.aws_subnet_ids.wordpressPrivateSubnets.ids}"]
+  subnet_ids = ["${aws_subnet.private.*.id}"]
 }
 
 # Database security groups
@@ -47,26 +40,4 @@ resource "aws_security_group" "wordpressRdsSg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-}
-
-# Create Wordpress database and user
-provider "mysql" {
-  endpoint = "${aws_db_instance.wordpress.endpoint}"
-  username = "${aws_db_instance.wordpress.username}"
-  password = "${aws_db_instance.wordpress.password}"
-}
-
-resource "mysql_database" "wp_db" {
-  name = "wp_db"
-}
-
-resource "mysql_user" "wp_user" {
-  user               = "wpSite"
-  plaintext_password = "${var.mysql_user_password}"
-}
-
-resource "mysql_grant" "wp_user" {
-  user       = "${mysql_grant.wp_user.user}"
-  datadase   = "wp_db"
-  privileges = ["SELECT", "INSERT", "UPDATE", "DELETE"]
 }
