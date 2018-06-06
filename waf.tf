@@ -1,6 +1,6 @@
 # Attach web ACL to Application load balancer
 resource "aws_wafregional_web_acl_association" "waf_alb" {
-  resource_arn = "${data.wp_lb.arn}"
+  resource_arn = "${module.alb.load_balancer_id}"
   web_acl_id   = "${aws_wafregional_web_acl.wordpress_waf_acl.id}"
 }
 
@@ -111,9 +111,4 @@ resource "aws_wafregional_rule" "sqli_rule" {
     data_id = "${aws_wafregional_sql_injection_match_set.sql_match_set.id}"
     negated = false
   }
-}
-
-# Import data of load balancer to extract alb ARN
-data "aws_lb" "wp_lb" {
-  name = "${var.load_balancer_name}"
 }
