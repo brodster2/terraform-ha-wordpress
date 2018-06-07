@@ -18,3 +18,8 @@ variable "mysql_user_password" {
   description = "Password for the user account for WordPress with limited permissions"
   type        = "string"
 }
+
+variable "load_balancer_name" {
+  type    = "string"
+  default = "wordpress-alb"
+}
