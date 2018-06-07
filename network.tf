@@ -65,3 +65,16 @@ resource "aws_route_table" "privateRt" {
     nat_gateway_id = "${aws_nat_gateway.natGw.id}"
   }
 }
+
+# Public subnet to public route table association
+resource "aws_route_table_association" "public" {
+  subnet_id      = "${aws_subnet.public.id}"
+  route_table_id = "${aws_route_table.publicRt.id}"
+}
+
+# Private subnet to private route table association
+resource "aws_route_table_association" "private" {
+  count          = 2
+  subnet_id      = "${element("${aws_subnet.private.*.id}", count.index)}"
+  route_table_id = "${aws_route_table.privateRt.id}"
+}
