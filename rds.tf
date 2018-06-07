@@ -5,13 +5,13 @@ resource "aws_db_instance" "wordpress" {
   engine                 = "mysql"
   engine_version         = "5.7"
   instance_class         = "db.t2.micro"
-  username               = "testExample"
+  username               = "testRootUser"
   password               = "${var.rds_root_password}"
   port                   = "3306"
   name                   = "wp_db"
   parameter_group_name   = "default.mysql5.7"
   maintenance_window     = "Sun:00:00-Sun:01:00"
-  publicly_accessible    = true
+  publicly_accessible    = false
   vpc_security_group_ids = ["${aws_security_group.wordpressRdsSg.id}"]
   db_subnet_group_name   = "${aws_db_subnet_group.wordpressDb.id}"
 }
