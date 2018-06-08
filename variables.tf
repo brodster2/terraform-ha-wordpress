@@ -19,7 +19,12 @@ variable "rds_root_password" {
   type        = "string"
 }
 
-variable "load_balancer_name" {
-  type    = "string"
-  default = "wordpress-alb"
+variable "trusted_ssh_cidrs" {
+  description = "List of cidr blocks which the bastion host can be accessed from. Used by aws_security_group.bastionSsh"
+  type        = "list"
+}
+
+variable "bastion_host_key" {
+  description = "Keypair to use to login to the bastion host"
+  type        = "string"
 }
