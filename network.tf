@@ -2,7 +2,7 @@ resource "aws_vpc" "wordpressVpc" {
   cidr_block = "10.0.0.0/22"
 
   tags {
-    name        = "WordpressTest"
+    Name        = "Demo WP"
     generatedBy = "Terraform"
   }
 }
@@ -15,6 +15,7 @@ resource "aws_subnet" "public" {
 
   tags {
     Tier = "Public"
+    Name = "Demo WP Public"
   }
 }
 
@@ -26,12 +27,17 @@ resource "aws_subnet" "private" {
 
   tags {
     Tier = "Private"
+    Name = "Demo WP Private-${count.index}"
   }
 }
 
 ### Gateways
 resource "aws_internet_gateway" "gw" {
   vpc_id = "${aws_vpc.wordpressVpc.id}"
+
+  tags {
+    Name = "Demo WP"
+  }
 }
 
 resource "aws_nat_gateway" "natGw" {
@@ -39,11 +45,19 @@ resource "aws_nat_gateway" "natGw" {
   subnet_id     = "${aws_subnet.public.id}"
 
   depends_on = ["aws_internet_gateway.gw"]
+
+  tags {
+    Name = "Demo WP"
+  }
 }
 
 ### Elastic IP (Required for NAT Gateway)
 resource "aws_eip" "nat" {
   vpc = true
+
+  tags {
+    Name = "Demo WP"
+  }
 }
 
 ### Route Tables
@@ -55,6 +69,10 @@ resource "aws_route_table" "publicRt" {
     cidr_block = "0.0.0.0/0"
     gateway_id = "${aws_internet_gateway.gw.id}"
   }
+
+  tags {
+    Name = "Demo WP Public"
+  }
 }
 
 resource "aws_route_table" "privateRt" {
@@ -63,6 +81,10 @@ resource "aws_route_table" "privateRt" {
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = "${aws_nat_gateway.natGw.id}"
+  }
+
+  tags {
+    Name = "Demo WP Private"
   }
 }
 
